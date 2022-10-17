@@ -1,0 +1,6 @@
+[submodule "raas/ospray"]
+	path = raas/ospray
+	url = git@github.com:ospray/ospray.git
+[submodule "raas/rapidjson"]
+	path = raas/rapidjson
+	url = git@github.com:Tencent/rapidjson.git
