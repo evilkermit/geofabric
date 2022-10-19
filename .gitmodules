@@ -4,9 +4,3 @@
 [submodule "raas/rapidjson"]
 	path = raas/rapidjson
 	url = git@github.com:Tencent/rapidjson.git
-[submodule "raas/rkcommon"]
-	path = raas/rkcommon
-	url = https://github.com/ospray/rkcommon.git
-[submodule "raas/pbnj"]
-	path = raas/pbnj
-	url = git@github.com:seelabutk/pbnj.git
