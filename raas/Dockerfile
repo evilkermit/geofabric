@@ -15,8 +15,12 @@ RUN apt-get update && \
             cmake \
             # Needed By: pistache for running tests
             python \
+            # Needed By: rasterize
+            gdal-bin libgdal-dev \
             # Needed By: embree and ospray for their threading framework
             libtbb-dev \
+            # Needed By: ospray for glm
+            xorg-dev libglu1-mesa-dev \
             # Needed By: embree and ospray for OpenGL
             libglu1-mesa-dev freeglut3-dev mesa-common-dev \
             # Needed By: enchiladas for pthreads
@@ -44,28 +48,75 @@ RUN true && \
     make install && \
     rm -rf /opt/rapidjson
 
-#WORKDIR /opt/
-#ADD tbb2017_20161128oss_lin.tgz /opt/
-#RUN mv tbb2017_20161128oss tbb
-#WORKDIR /opt/tbb/
-#
+# WORKDIR /opt/
+# ADD tbb2017_20161128oss_lin.tgz /opt/
+# RUN mv tbb2017_20161128oss tbb
+# WORKDIR /opt/tbb/
+
+# WORKDIR /opt/
+# ADD oneapi-tbb-2021.6.0-lin.tgz /opt/
+# RUN mv oneapi-tbb-2021.6.0 tbb
+# WORKDIR /opt/tbb/
+# RUN true && \
+#     cmake .. \
+#         -DCMAKE_BUILD_TYPE=Release 
+    # && \
+    # cmake --build . \
+    #     --config Release 
+        # --target install \
+        # -- ${build_parallel} && \
+    # rm -rf /opt/tbb
+
 WORKDIR /opt/
-ADD ispc-v1.9.1-linux.tar.gz /opt/
-RUN mv ispc-v1.9.1-linuxz ispc
+ADD ispc-v1.18.0-linux.tar.gz /opt/
+RUN mv ispc-v1.18.0-linux ispc
 WORKDIR /opt/ispc/
-RUN update-alternatives --install /usr/bin/ispc ispc /opt/ispc/ispc 1
-#
-WORKDIR /opt/
-ADD embree-2.16.4.x86_64.linux.tar.gz /opt/
-RUN mv embree-2.16.4.x86_64.linux embree
-WORKDIR /opt/embree/
-#
+RUN update-alternatives --install /usr/bin/ispc ispc /opt/ispc/bin/ispc 1
+
+# WORKDIR /opt/
+# ADD ispc-v1.18.0-linux.tar.gz /opt/
+# RUN mv ispc-v1.18.0-linux ispc
+# WORKDIR /opt/ispc/
+# RUN update-alternatives --install /usr/bin/ispc ispc /opt/ispc/bin/ispc 1
+
+# WORKDIR /opt/
+# ADD embree-2.16.4.x86_64.linux.tar.gz /opt/
+# RUN mv embree-2.16.4.x86_64.linux embree
+# WORKDIR /opt/embree/
+
+
+
+# WORKDIR /opt/
+# COPY rkcommon /opt/rkcommon
+# WORKDIR /opt/rkcommon/build/
+# RUN true && \
+#     cmake .. \
+#     && \
+#     cmake  --build . && \
+#          -DCMAKE_BUILD_TYPE=Release \
+#          -DTBB_ROOT=/opt/tbb/ \
+#          -RKCOMMON_TASKING_SYSTEM=TBB 
+    # && \
+    # cmake --build . 
+    # rm -rf /opt/rkcommon
+    #       -DCMAKE_INSTALL_PREFIX=/usr \
+    #       -DRKCOMMON_BUILD_EXAMPLES:BOOL=OFF \
+    #       -DRKCOMMON_BUILD_TESTS:BOOL=OFF \
+
 WORKDIR /opt/
 COPY ospray /opt/ospray
 WORKDIR /opt/ospray/build
-#
-#RUN true && \
-#    cmake .. \
+
+RUN true && \
+    cmake ../scripts/superbuild \
+            -DBUILD_OIDN_FROM_SOURCE=OFF \ 
+            -DBUILD_EMBREE_FROM_SOURCE=OFF \
+            -DBUILD_ISPC_FROM_SOURCE=OFF \
+            -DDOWNLOAD_ISPC=OFF \
+    && \
+    cmake --build . 
+
+
 #          -Dembree_DIR=/opt/embree \
 #          -DOSPRAY_ENABLE_APPS:BOOL=OFF \
 #          -DTBB_ROOT=/opt/tbb/ \
@@ -117,4 +168,5 @@ WORKDIR /opt/ospray/build
 #COPY install_dependencies.sh /opt/install_dependencies.sh
 #RUN /opt/install_dependencies.sh
 
-CMD ["sh", "-c", "./server /config 9010 ${APP_DIR}"]
+# CMD ["sh"]
+# CMD ["sh", "-c", "./server /config 9010 ${APP_DIR}"]
