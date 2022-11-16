@@ -7,3 +7,6 @@
 [submodule "geofabric/quesadillas"]
 	path = geofabric/quesadillas
 	url = git@github.com:hunterprice04/quesadillas.git
+[submodule "geofabric/rasty"]
+	path = geofabric/rasty
+	url = git@github.com:seelabutk/rasty.git
