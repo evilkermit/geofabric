@@ -1,0 +1,3 @@
+[submodule "geofabric/osp_raster"]
+	path = geofabric/osp_raster
+	url = git@github.com:seelabutk/osp_raster.git
