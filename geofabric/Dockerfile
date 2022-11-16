@@ -15,7 +15,7 @@ RUN apt-get update && \
             cmake \
             # Needed By: pistache for running tests
             python \
-            # Needed By: osp_raster
+            # Needed By: rasty
             gdal-bin libgdal-dev libcgal-dev \
             # Needed By: embree and ospray for their threading framework
             libtbb-dev \
