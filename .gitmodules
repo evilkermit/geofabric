@@ -1,9 +1,6 @@
 [submodule "geofabric/rapidjson"]
 	path = geofabric/rapidjson
 	url = git@github.com:Tencent/rapidjson.git
-[submodule "geofabric/pistache"]
-	path = geofabric/pistache
-	url = git@github.com:seelabutk/pistache.git
 [submodule "geofabric/quesadillas"]
 	path = geofabric/quesadillas
 	url = git@github.com:hunterprice04/quesadillas.git
