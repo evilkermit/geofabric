@@ -10,3 +10,6 @@
 [submodule "geofabric/rkcommon"]
 	path = geofabric/rkcommon
 	url = git@github.com:ospray/rkcommon.git
+[submodule "geofabric/pistache"]
+	path = geofabric/pistache
+	url = git@github.com:pistacheio/pistache.git
