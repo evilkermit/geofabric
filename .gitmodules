@@ -13,3 +13,6 @@
 [submodule "geofabric/ospray"]
 	path = geofabric/ospray
 	url = git@github.com:ospray/ospray.git
+[submodule "geofabric/rkcommon"]
+	path = geofabric/rkcommon
+	url = git@github.com:ospray/rkcommon.git

@@ -1,8 +1,8 @@
-# Creates an Enchiladas container for the Tapestry project.
+# Creates an Quesadillas container for the Quesadillas project.
 # This Dockerfile was originally written by Tanner Hobson (thobson2@vols.utk.edu)
 
-FROM ubuntu:xenial
-MAINTAINER Mohammad Raji <mahmadza@vols.utk.edu>
+FROM ubuntu:jammy
+MAINTAINER Hunter Price <hprice7@vols.utk.edu>
 
 ARG build_parallel
 ARG minifyjs
@@ -14,7 +14,7 @@ RUN apt-get update && \
             # Needed By: everything
             cmake \
             # Needed By: pistache for running tests
-            python \
+            python3 \
             # Needed By: rasty
             gdal-bin libgdal-dev libcgal-dev \
             # Needed By: embree and ospray for their threading framework
@@ -28,7 +28,7 @@ RUN apt-get update && \
             # Needed By: pbnj for netcdf support
             libnetcdf-c++4-1 libnetcdf-dev libnetcdf-c++4-dev \
             # Needed By: enchiladas for minifying JavaScript
-            python-pip \
+            python3-pip \
             # Needed By: tapestry studio for exporting to mp4
             # ffmpeg \
             git \
@@ -48,125 +48,68 @@ RUN true && \
     make install && \
     rm -rf /opt/rapidjson
 
-# WORKDIR /opt/
-# ADD tbb2017_20161128oss_lin.tgz /opt/
-# RUN mv tbb2017_20161128oss tbb
-# WORKDIR /opt/tbb/
+WORKDIR /opt/
+ADD oneapi-tbb-2021.5.0-lin.tgz /opt/
+RUN mv oneapi-tbb-2021.5.0 tbb
+WORKDIR /opt/tbb/
 
-# WORKDIR /opt/
-# ADD oneapi-tbb-2021.6.0-lin.tgz /opt/
-# RUN mv oneapi-tbb-2021.6.0 tbb
-# WORKDIR /opt/tbb/
-# RUN true && \
-#     cmake .. \
-#         -DCMAKE_BUILD_TYPE=Release 
-    # && \
-    # cmake --build . \
-    #     --config Release 
-        # --target install \
-        # -- ${build_parallel} && \
-    # rm -rf /opt/tbb
+# ispc here?
 
 WORKDIR /opt/
-ADD ispc-v1.18.0-linux.tar.gz /opt/
-RUN mv ispc-v1.18.0-linux ispc
-WORKDIR /opt/ispc/
-RUN update-alternatives --install /usr/bin/ispc ispc /opt/ispc/bin/ispc 1
+ADD embree-3.13.3.x86_64.linux.tar.gz /opt/
+RUN mv embree-3.13.3.x86_64.linux embree
+WORKDIR /opt/embree/
 
-# WORKDIR /opt/
-# ADD ispc-v1.18.0-linux.tar.gz /opt/
-# RUN mv ispc-v1.18.0-linux ispc
-# WORKDIR /opt/ispc/
-# RUN update-alternatives --install /usr/bin/ispc ispc /opt/ispc/bin/ispc 1
-
-# WORKDIR /opt/
-# ADD embree-2.16.4.x86_64.linux.tar.gz /opt/
-# RUN mv embree-2.16.4.x86_64.linux embree
-# WORKDIR /opt/embree/
-
-
-
-# WORKDIR /opt/
-# COPY rkcommon /opt/rkcommon
-# WORKDIR /opt/rkcommon/build/
-# RUN true && \
-#     cmake .. \
-#     && \
-#     cmake  --build . && \
-#          -DCMAKE_BUILD_TYPE=Release \
-#          -DTBB_ROOT=/opt/tbb/ \
-#          -RKCOMMON_TASKING_SYSTEM=TBB 
-    # && \
-    # cmake --build . 
-    # rm -rf /opt/rkcommon
-    #       -DCMAKE_INSTALL_PREFIX=/usr \
-    #       -DRKCOMMON_BUILD_EXAMPLES:BOOL=OFF \
-    #       -DRKCOMMON_BUILD_TESTS:BOOL=OFF \
+# setup ospray
+WORKDIR /opt/
+ADD ospray-2.10.0.x86_64.linux.tar.gz /opt/
+RUN mv ospray-2.10.0.x86_64.linux ospray
 
 WORKDIR /opt/
-COPY ospray /opt/ospray
-WORKDIR /opt/ospray/build
-
+COPY rkcommon /opt/rkcommon
+WORKDIR /opt/rkcommon/build
 RUN true && \
-    cmake ../scripts/superbuild \
-            -DBUILD_OIDN_FROM_SOURCE=OFF \ 
-            -DBUILD_EMBREE_FROM_SOURCE=OFF \
-            -DBUILD_ISPC_FROM_SOURCE=OFF \
-            -DDOWNLOAD_ISPC=OFF \
+    cmake .. \
+        -DTBB_ROOT=/opt/tbb/ \
     && \
-    cmake --build . 
+    cmake --build .  && \
+    make install
+        #   --config Release \
+        #   --target install \
+        #   -- ${build_parallel} && \
+
+# SVT-HEVC here?
+# ffmpeg here?
+
+WORKDIR /opt/
+COPY quesadillas /opt/quesadillas
+# COPY rasty /opt/quesadillas/resources/rasty
+# COPY pistache /opt/quesadillas/resources/pistache
+WORKDIR /opt/quesadillas/build
+RUN true && \
+    pip install rjsmin && \
+    cmake .. \
+          -DCMAKE_CXX_COMPILER=g++ \
+          -DCMAKE_C_COMPILER=gcc \
+          -DUSE_NETCDF:BOOL=ON \
+          -DBUILD_EXAMPLES:BOOL=OFF \
+          -DOSPRAY_INSTALL_DIR=/opt/ospray/ \
+           -DTBB_ROOT=/opt/tbb/ \
+          -Dembree_DIR=/opt/embree \
+          -DENABLE_MINIFY=${minifyjs:+ON}${minifyjs:-OFF} \
+    && \
+    make ${build_parallel} && \
+    make install
 
 
-#          -Dembree_DIR=/opt/embree \
-#          -DOSPRAY_ENABLE_APPS:BOOL=OFF \
-#          -DTBB_ROOT=/opt/tbb/ \
-#          -DOSPRAY_TASKING_SYSTEM=TBB \
-#    && \
-#    make ${build_parallel} && \
-#    make install && \
-#    rm -rf /opt/ospray
-#
-## Install SVT-HEVC for tapestry-gui
-#WORKDIR /opt
-#RUN true && \
-#    git clone https://github.com/intel/SVT-HEVC && \
-#    cd SVT-HEVC && mkdir build && cd build && cmake .. && make -j `nproc` && make install
-#
-#WORKDIR /opt
-#RUN true && \
-#    git clone https://github.com/FFmpeg/FFmpeg ffmpeg
-#
-#WORKDIR /opt/ffmpeg/
-#RUN git checkout release/4.1 && \
-#    git apply ../SVT-HEVC/ffmpeg_plugin/0001-lavc-svt_hevc-add-libsvt-hevc-encoder-wrapper.patch && \
-#    git apply ../SVT-HEVC/ffmpeg_plugin/0002-doc-Add-libsvt_hevc-encoder-docs.patch && \
-#    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib && \
-#    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig && \
-#    ./configure --enable-libsvthevc && make -j `nproc` && make install
-#
-#WORKDIR /opt/
-#COPY enchiladas /opt/enchiladas
-#COPY pbnj /opt/enchiladas/resources/pbnj
-#COPY pistache /opt/enchiladas/resources/pistache
-#WORKDIR /opt/enchiladas/build
-#RUN true && \
-#    pip install rjsmin && \
-#    cmake .. \
-#          -DCMAKE_CXX_COMPILER=g++ \
-#          -DCMAKE_C_COMPILER=gcc \
-#          -DUSE_NETCDF:BOOL=ON \
-#          -DBUILD_EXAMPLES:BOOL=OFF \
-#          -DOSPRAY_INSTALL_DIR=/usr/local/ \
-#           -DTBB_ROOT=/opt/tbb/ \
-#          -Dembree_DIR=/opt/embree \
-#          -DENABLE_MINIFY=${minifyjs:+ON}${minifyjs:-OFF} \
-#    && \
-#    make ${build_parallel} && \
-#    make install
-#
-## Copy dependency installation script
-#COPY install_dependencies.sh /opt/install_dependencies.sh
-#RUN /opt/install_dependencies.sh
+# Copy dependency installation script 
+COPY install_dependencies.sh /opt/install_dependencies.sh
+RUN /opt/install_dependencies.sh
 
-# CMD ["sh"]
-# CMD ["sh", "-c", "./server /config 9010 ${APP_DIR}"]
+# start server
+# if you need an app directory, start the server with an environment variable APP_DIR
+CMD ["sh", "-c", "./server /config 9010 ${APP_DIR}"]
+
+
+
+
