@@ -10,9 +10,6 @@
 [submodule "geofabric/rasty"]
 	path = geofabric/rasty
 	url = git@github.com:seelabutk/rasty.git
-[submodule "geofabric/ospray"]
-	path = geofabric/ospray
-	url = git@github.com:ospray/ospray.git
 [submodule "geofabric/rkcommon"]
 	path = geofabric/rkcommon
 	url = git@github.com:ospray/rkcommon.git
