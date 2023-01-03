@@ -1,11 +1,12 @@
 # Creates an Quesadillas container for the Quesadillas project.
 # This Dockerfile was originally written by Tanner Hobson (thobson2@vols.utk.edu)
 
-FROM ubuntu:jammy
+FROM ubuntu:focal
 MAINTAINER Hunter Price <hprice7@vols.utk.edu>
 
 ARG build_parallel
 ARG minifyjs
+ENV DEBIAN_FRONTEND=noninteractive 
 
 RUN apt-get update && \
     apt-get install -y \
@@ -83,11 +84,11 @@ RUN true && \
 
 WORKDIR /opt/
 COPY quesadillas /opt/quesadillas
-# COPY rasty /opt/quesadillas/resources/rasty
-# COPY pistache /opt/quesadillas/resources/pistache
+COPY rasty /opt/quesadillas/resources/rasty
+COPY pistache /opt/quesadillas/resources/pistache
 WORKDIR /opt/quesadillas/build
 RUN true && \
-    pip install rjsmin && \
+    pip3 install rjsmin && \
     cmake .. \
           -DCMAKE_CXX_COMPILER=g++ \
           -DCMAKE_C_COMPILER=gcc \
@@ -109,7 +110,3 @@ RUN /opt/install_dependencies.sh
 # start server
 # if you need an app directory, start the server with an environment variable APP_DIR
 CMD ["sh", "-c", "./server /config 9010 ${APP_DIR}"]
-
-
-
-
