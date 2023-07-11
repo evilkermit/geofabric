@@ -1,8 +1,9 @@
 #!/bin/bash
 docker run -it \
-    -v /home/hp/github/research/geofabric/examples/smnp-docker/app:/app \
-    -v /home/hp/github/research/geofabric/examples/smnp-docker/config:/config \
-    -v /home/hp/github/research/geofabric/examples/smnp-docker/data:/data \
+    -v /home/jduggan1/geofabric/app:/app \
+    -v /home/jduggan1/geofabric/config:/config \
+    -v /mnt/seenas2/data/NPS_converted/geofabric:/data \
     -p 9010:9010 \
     --env APP_DIR=/app \
-    hprice7/geo-fabric 
+    --name geofabric \
+    geofabric
